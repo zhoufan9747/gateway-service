@@ -1,0 +1,32 @@
+server:
+  port: 8088
+logging:
+  level:
+    org.springframework.cloud.gateway: trace
+    org.springframework.http.server.reactive: debug
+    org.springframework.web.reactive: debug
+    reactor.ipc.netty: debug
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:1111/eureka/
+feign:
+  hystrix:
+    enabled: true
+spring:
+  application:
+    name: gateway-service
+  cloud:        # spring cloud gateway 路由配置方式
+    gateway:
+      discovery:   #是否与服务发现组件进行结合，通过 serviceId(必须设置成大写) 转发到具体的服务实例。默认为false，设为true便开启通过服务中心的自动根据 serviceId 创建路由的功能。
+        locator:    #路由访问方式：http://Gateway_HOST:Gateway_PORT/大写的serviceId/**，其中微服务应用名默认大写访问。
+          enabled: false
+          lowerCaseServiceId: true #是将请求路径上的服务名配置为小写（因为服务注册的时候，向注册中心注册时将服务名转成大写的了）
+      routes:
+      - id: elapse_route
+        uri: lb://EXAMPLE
+        predicates:
+          - Path=/demo/**
+        filters:
+          - StripPrefix=1
+          - RequestTime=true
